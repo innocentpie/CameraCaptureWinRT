@@ -13,7 +13,7 @@ namespace CameraCaptureWinRT
         public byte[] bytes;
 
         /// <summary>
-        /// The format in that the bytes are.
+        /// The format of the bytes.
         /// </summary>
         public BitmapPixelFormat pixelFormat;
 

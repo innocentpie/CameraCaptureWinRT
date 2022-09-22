@@ -11,7 +11,7 @@ using System.Threading;
 namespace CameraCaptureWinRT.Modules
 {
     /// <summary>
-    /// Provides advanced control over video capturing and recieving frames.
+    /// Provides simplified control over video capturing and recieving frames.
     /// </summary>
     public class VideoCaptureModule
     {
@@ -50,7 +50,7 @@ namespace CameraCaptureWinRT.Modules
             {
                 if (_mediaCapture == null)
                     throw new InvalidOperationException("Trying to access property of uninitialized object. Call InitializeAsync first.");
-                return _moduleSettings.sourceKind;
+                return _moduleSettings.SourceKind;
             }
         }
 
@@ -65,7 +65,7 @@ namespace CameraCaptureWinRT.Modules
             {
                 if (_mediaCapture == null)
                     throw new InvalidOperationException("Trying to access property of uninitialized object. Call InitializeAsync first.");
-                return _moduleSettings.targetFormat;
+                return _moduleSettings.TargetFormat;
             }
         }
 
@@ -80,7 +80,7 @@ namespace CameraCaptureWinRT.Modules
             {
                 if (_mediaCapture == null)
                     throw new InvalidOperationException("Trying to access property of uninitialized object. Call InitializeAsync first.");
-                return _moduleSettings.acquisitionMode;
+                return _moduleSettings.AcquisitionMode;
             }
         }
 
@@ -92,11 +92,11 @@ namespace CameraCaptureWinRT.Modules
 
 
         /// <summary>
-        /// Gets all available sources available for the specified source kind.
+        /// Gets all sources available for the specified source kind.
         /// </summary>
         /// <param name="sourceKind"></param>
         /// <returns></returns>
-        public static async Task<IEnumerable<MediaFrameSourceInfo>> GetAvalableSources(MediaFrameSourceKind sourceKind)
+        public static async Task<IEnumerable<MediaFrameSourceInfo>> GetAvailableSources(MediaFrameSourceKind sourceKind)
         {
             var all = await MediaFrameSourceGroup.FindAllAsync();
             IEnumerable<MediaFrameSourceInfo> available = all
@@ -121,9 +121,9 @@ namespace CameraCaptureWinRT.Modules
             await UninitializeSettingsAsync();
 
             this._moduleSettings = settings;
+            var source = settings.TargetSource;
 
             // Find source group and source info
-            var source = settings.targetSource;
             SourceGroup = source.SourceGroup;
             SourceInfo = source;
 
@@ -132,22 +132,22 @@ namespace CameraCaptureWinRT.Modules
             {
                 VideoDeviceId = SourceGroup.Id,
                 SourceGroup = SourceGroup,
-                SharingMode = MediaCaptureSharingMode.ExclusiveControl,
+                SharingMode = settings.SharingMode,
                 StreamingCaptureMode = StreamingCaptureMode.Video,
                 MemoryPreference = MediaCaptureMemoryPreference.Cpu,
             };
 
             // Find and set profile with resolution (if found)
-            var resolution = settings.targetResolution;
-            if (resolution != null && MediaCapture.IsVideoProfileSupported(SourceGroup.Id))
+            var resolution = settings.TargetResolution;
+            if (_moduleSettings.SharingMode != MediaCaptureSharingMode.SharedReadOnly && resolution != null && MediaCapture.IsVideoProfileSupported(SourceGroup.Id))
             {
                 var profiles = MediaCapture.FindAllVideoProfiles(SourceGroup.Id);
                 var matches = (from prof in profiles
                                from desc in prof.SupportedRecordMediaDescription
-                               where desc.Width == resolution.width
-                                   && desc.Height == resolution.height
-                                   && Math.Abs(desc.FrameRate - resolution.frameRate) < 0.001d
-                                   && desc.Subtype == resolution.format
+                               where desc.Width == resolution.Width
+                                   && desc.Height == resolution.Height
+                                   && Math.Abs(desc.FrameRate - resolution.FrameRate) < 0.001d
+                                   && desc.Subtype == resolution.Subtype
                                select new { prof, desc });
                 var match = matches.FirstOrDefault();
                 if (match?.prof != null)
@@ -171,20 +171,35 @@ namespace CameraCaptureWinRT.Modules
                 throw e;
             }
 
-            // Initializing succeded
-            // Try to set properties this way as well
-            // Profiles don't work on some devices
-            IEnumerable<VideoEncodingProperties> allVideoProperties = _mediaCapture.VideoDeviceController.GetAvailableMediaStreamProperties(SourceInfo.MediaStreamType).Select(x => x as VideoEncodingProperties);
-            VideoEncodingProperties selectedStreamProperties = allVideoProperties.FirstOrDefault(
-                x => x.Width == resolution.width
-                        && x.Height == resolution.height
-                        && Math.Abs(
-                            (x.FrameRate.Denominator != 0 ? ((double)x.FrameRate.Numerator / x.FrameRate.Denominator) : 0)
-                                - resolution.frameRate) < 0.001d
-                        && x.Subtype == resolution.format);
+            if (_moduleSettings.SharingMode != MediaCaptureSharingMode.SharedReadOnly)
+            {
+                // Initializing succeded
+                // Try to set properties this way as well
+                // Profiles don't work on some devices
+                IEnumerable<VideoEncodingProperties> allVideoProperties = _mediaCapture.VideoDeviceController.GetAvailableMediaStreamProperties(SourceInfo.MediaStreamType).Select(x => x as VideoEncodingProperties);
+                VideoEncodingProperties selectedStreamProperties = allVideoProperties.FirstOrDefault(
+                    x => x.Width == resolution.Width
+                            && x.Height == resolution.Height
+                            && Math.Abs(
+                                (x.FrameRate.Denominator != 0 ? ((double)x.FrameRate.Numerator / x.FrameRate.Denominator) : 0)
+                                    - resolution.FrameRate) < 0.001d
+                            && x.Subtype == resolution.Subtype);
 
-            if (selectedStreamProperties != null && this._moduleSettings.sharingMode != MediaCaptureSharingMode.SharedReadOnly)
-                await _mediaCapture.VideoDeviceController.SetMediaStreamPropertiesAsync(SourceInfo.MediaStreamType, selectedStreamProperties);
+                if (selectedStreamProperties != null)
+                {
+                    try
+                    {
+                        await _mediaCapture.VideoDeviceController.SetMediaStreamPropertiesAsync(SourceInfo.MediaStreamType, selectedStreamProperties);
+                    }
+                    catch (Exception e)
+                    {
+                        // Exclusive control is not available
+                        // Continue with shared read only ?
+                        await UninitializeSettingsAsync();
+                        throw e;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -220,7 +235,7 @@ namespace CameraCaptureWinRT.Modules
         /// <returns></returns>
         public async Task StopCapturingAsync()
         {
-            if(_frameReader != null)
+            if (_frameReader != null)
             {
                 _frameReader.FrameArrived -= FrameReader_FrameArrived;
                 await _frameReader.StopAsync();

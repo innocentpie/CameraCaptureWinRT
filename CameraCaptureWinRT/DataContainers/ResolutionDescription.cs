@@ -4,24 +4,24 @@ using Windows.Media.Capture;
 namespace CameraCaptureWinRT
 {
     /// <summary>
-    /// Describes a resolution with framerate.
+    /// Describes a resolution with framerate and format.
     /// </summary>
     public class ResolutionDescription
     {
         public ResolutionDescription(MediaCaptureVideoProfileMediaDescription description)
         {
-            width = description.Width;
-            height = description.Height;
-            frameRate = description.FrameRate;
-            format = description.Subtype;
+            Width = description.Width;
+            Height = description.Height;
+            FrameRate = description.FrameRate;
+            Subtype = description.Subtype;
         }
 
-        public ResolutionDescription(uint width, uint height, double frameRate, string format)
+        public ResolutionDescription(uint width, uint height, double frameRate, string format = null)
         {
-            this.width = width;
-            this.height = height;
-            this.frameRate = frameRate;
-            this.format = format;
+            this.Width = width;
+            this.Height = height;
+            this.FrameRate = frameRate;
+            this.Subtype = format;
         }
 
         /// <summary>
@@ -29,26 +29,27 @@ namespace CameraCaptureWinRT
         /// </summary>
         public double AspectRatio
         {
-            get { return Math.Round((height != 0) ? (width / (double)height) : double.NaN, 2); }
+            get { return Math.Round((Height != 0) ? (Width / (double)Height) : double.NaN, 2); }
         }
 
         /// <summary>
         /// Resolution width in pixels.
         /// </summary>
-        public uint width;
+        public uint Width { get; set; }
         /// <summary>
         /// Resolution height in pixels.
         /// </summary>
-        public uint height;
+        public uint Height { get; set; }
         /// <summary>
         /// Resolution's frame rate (FPS).
         /// </summary>
-        public double frameRate;
+        public double FrameRate { get; set; }
         /// <summary>
         /// The native recieved format (such as NV12 or BGRA8).
         /// <br/>(Referred to as Subtype in the media capture library).
         /// </summary>
-        public string format;
+        public string Subtype { get; set; }
+
 
         /// <summary>
         /// Returns resolution as a human readable string.
@@ -56,7 +57,7 @@ namespace CameraCaptureWinRT
         /// <returns>Example: "1280x720@29.97FPS [Nv12]"</returns>
         public override string ToString()
         {
-            return $"{width}x{height}@{frameRate.ToString("0.##")}FPS [{format}]";
+            return $"{Width}x{Height}@{FrameRate.ToString("0.##")}FPS [{Subtype}]";
         }
 
         /// <summary>
@@ -68,10 +69,10 @@ namespace CameraCaptureWinRT
             if (toCompareWith == null)
                 return false;
 
-            return this.format == toCompareWith.format
-                && this.frameRate == toCompareWith.frameRate
-                && this.width == toCompareWith.width
-                && this.height == toCompareWith.height;
+            return this.Subtype == toCompareWith.Subtype
+                && this.FrameRate == toCompareWith.FrameRate
+                && this.Width == toCompareWith.Width
+                && this.Height == toCompareWith.Height;
         }
     }
 }

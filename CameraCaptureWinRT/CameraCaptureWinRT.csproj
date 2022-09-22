@@ -133,10 +133,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DataContainers\FrameData.cs" />
+    <Compile Include="DataContainers\ResolutionDescription.cs" />
     <Compile Include="DataContainers\VideoCaptureModuleSettings.cs" />
     <Compile Include="Modules\VideoCaptureModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DataContainers\ResolutionDescription.cs" />
     <Compile Include="IMemoryBufferByteAccess.cs" />
     <EmbeddedResource Include="Properties\CameraCaptureWinRT.rd.xml" />
   </ItemGroup>
