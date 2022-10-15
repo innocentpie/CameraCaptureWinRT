@@ -134,6 +134,7 @@
   <ItemGroup>
     <Compile Include="DataContainers\FrameData.cs" />
     <Compile Include="DataContainers\ResolutionDescription.cs" />
+    <Compile Include="DataContainers\SourceDesciption.cs" />
     <Compile Include="DataContainers\VideoCaptureModuleSettings.cs" />
     <Compile Include="Modules\VideoCaptureModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CameraCaptureWinRT.Modules;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
@@ -17,7 +18,7 @@ namespace CameraCaptureWinRT
         /// <br/> You must specify a valid source. If the source is null, or not available, initializing the video capture module fails
         /// </summary>
         /// <param name="targetSource"></param>
-        public VideoCaptureModuleSettings(MediaFrameSourceInfo targetSource)
+        public VideoCaptureModuleSettings(SourceDescription targetSource)
         {
             TargetSource = targetSource;
         }
@@ -26,12 +27,12 @@ namespace CameraCaptureWinRT
         /// The source to capture on.
         /// <br/> If source is not found, initialization fails.
         /// </summary>
-        public MediaFrameSourceInfo TargetSource { get; set; }
+        public SourceDescription TargetSource { get; set; }
 
         /// <summary>
         /// The kind of data captured.
         /// <br/> Note that only appropriate source kind should be selected for the use.
-        /// <br/> (eg. for the VideoCaptureModule selecting audio will fail).
+        /// <br/> (eg. for the <see cref="VideoCaptureModule"/> selecting audio will fail).
         /// </summary>
         public MediaFrameSourceKind SourceKind { get; set; } = MediaFrameSourceKind.Color;
 
@@ -42,7 +43,7 @@ namespace CameraCaptureWinRT
         public ResolutionDescription TargetResolution { get; set; } = null;
 
         /// <summary>
-        /// Specifies the output FrameData's byte array format.
+        /// Specifies the output <see cref="FrameData"/>'s byte array format.
         /// <br/> (If the natively produced frames are not in the target format, the output will be converted to the target).
         /// </summary>
         public BitmapPixelFormat TargetFormat { get; set; } = BitmapPixelFormat.Bgra8;
@@ -54,7 +55,7 @@ namespace CameraCaptureWinRT
 
         /// <summary>
         /// Specifies the sharing mode the media capture will be initialized with.
-        /// <br/> Note that using MediaCaptureSharingMode.SharedReadOnly will not allow setting the target resolution, and will use the currently used or default resolution.
+        /// <br/> Note that using <see cref="MediaCaptureSharingMode.SharedReadOnly"/> will not allow setting the target resolution, and will use the currently used or default resolution.
         /// </summary>
         public MediaCaptureSharingMode SharingMode { get; set; } = MediaCaptureSharingMode.ExclusiveControl;
     }

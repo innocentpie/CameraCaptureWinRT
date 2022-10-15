@@ -35,15 +35,15 @@ namespace CameraCaptureWinRT.Modules
 
         /// <summary>
         /// Stream type used for capturing.
-        /// <br/> Always returns MediaStreamType.VideoRecord in current implementation.
+        /// <br/> Always returns <see cref="MediaStreamType.VideoRecord"/> in current implementation.
         /// </summary>
         public MediaStreamType StreamType => STREAM_TYPE;
 
         /// <summary>
         /// The kind of data captured.
-        /// (Set when Initializing).
-        /// <br/> Throws InvalidOperationException if called while settings are uninitialized.
+        /// <br/> Throws <see cref="InvalidOperationException"/> if called while settings are uninitialized.
         /// </summary>
+        /// <exception cref="InvalidOperationException"/>
         public MediaFrameSourceKind SourceKind
         {
             get
@@ -55,10 +55,10 @@ namespace CameraCaptureWinRT.Modules
         }
 
         /// <summary>
-        /// Specifies the output FrameData's byte array format 
-        /// (set when Initializing).
-        /// <br/> Throws InvalidOperationException if called while settings are uninitialized.
+        /// Specifies the output <see cref="FrameData"/>'s byte array format 
+        /// <br/> Throws <see cref="InvalidOperationException"/> if called while settings are uninitialized.
         /// </summary>
+        /// <exception cref="InvalidOperationException"/>
         public BitmapPixelFormat TargetFormat
         {
             get
@@ -71,9 +71,9 @@ namespace CameraCaptureWinRT.Modules
 
         /// <summary>
         /// Specifies the way that the system should manage frames acquired from the when a new frame arrives before the app has finished processing the previous frame
-        /// (set when Initializing).
-        /// <br/> Throws InvalidOperationException if called while settings are uninitialized.
+        /// <br/> Throws <see cref="InvalidOperationException"/> if called while settings are uninitialized.
         /// </summary>
+        /// <exception cref="InvalidOperationException"/>
         public MediaFrameReaderAcquisitionMode AcquisitionMode
         {
             get
@@ -96,13 +96,24 @@ namespace CameraCaptureWinRT.Modules
         /// </summary>
         /// <param name="sourceKind"></param>
         /// <returns></returns>
-        public static async Task<IEnumerable<MediaFrameSourceInfo>> GetAvailableSources(MediaFrameSourceKind sourceKind)
+        public static async Task<IList<SourceDescription>> GetAvailableSources(MediaFrameSourceKind sourceKind)
         {
-            var all = await MediaFrameSourceGroup.FindAllAsync();
-            IEnumerable<MediaFrameSourceInfo> available = all
-                .SelectMany(x => x.SourceInfos.Where(y => y.MediaStreamType == STREAM_TYPE && y.SourceKind == sourceKind));
+            var allGroups = await MediaFrameSourceGroup.FindAllAsync();
+            List<SourceDescription> result = new List<SourceDescription>();
+            for (int i = 0; i < allGroups.Count; i++)
+            {
+                var currentGroup = allGroups[i];
+                var sourcesForGroup = currentGroup.SourceInfos;
 
-            return available;
+                for (int j = 0; j < sourcesForGroup.Count; j++)
+                {
+                    var currentSource = sourcesForGroup[j];
+                    if (currentSource.MediaStreamType == STREAM_TYPE && currentSource.SourceKind == sourceKind)
+                        result.Add(new SourceDescription(currentGroup, currentSource));
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -125,7 +136,7 @@ namespace CameraCaptureWinRT.Modules
 
             // Find source group and source info
             SourceGroup = source.SourceGroup;
-            SourceInfo = source;
+            SourceInfo = source.SourceInfo;
 
 
             MediaCaptureInitializationSettings mediaCaptureInitSettings = new MediaCaptureInitializationSettings()
@@ -264,7 +275,7 @@ namespace CameraCaptureWinRT.Modules
         }
 
         /// <summary>
-        /// Method added to MediaCapture's FrameArrived event.
+        /// Method added to <see cref="MediaFrameReader.FrameArrived"/> event.
         /// </summary>
         private void FrameReader_FrameArrived(MediaFrameReader sender, MediaFrameArrivedEventArgs args)
         {
@@ -282,7 +293,7 @@ namespace CameraCaptureWinRT.Modules
 
 
         /// <summary>
-        /// Converts frame data to raw byte array.
+        /// Converts <see cref="VideoMediaFrame"/> to <see cref="FrameData"/>
         /// </summary>
         private unsafe FrameData FrameConvert(VideoMediaFrame frame)
         {
