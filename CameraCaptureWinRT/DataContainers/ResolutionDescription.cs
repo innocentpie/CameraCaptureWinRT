@@ -61,7 +61,7 @@ namespace CameraCaptureWinRT
         }
 
         /// <summary>
-        /// Compares to other ResolutionDescription by value.
+        /// Compares to other <see cref="ResolutionDescription"/> by value.
         /// </summary>
         /// <returns>True, if all their fields are equal.</returns>
         public bool ValueEquals(ResolutionDescription toCompareWith)
