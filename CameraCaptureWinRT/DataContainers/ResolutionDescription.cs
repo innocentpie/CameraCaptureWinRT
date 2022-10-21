@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using Windows.Media.Capture;
 
 namespace CameraCaptureWinRT
@@ -6,6 +7,7 @@ namespace CameraCaptureWinRT
     /// <summary>
     /// Describes a resolution with framerate and format.
     /// </summary>
+    [DataContract]
     public class ResolutionDescription
     {
         public ResolutionDescription(MediaCaptureVideoProfileMediaDescription description)
@@ -35,19 +37,23 @@ namespace CameraCaptureWinRT
         /// <summary>
         /// Resolution width in pixels.
         /// </summary>
+        [DataMember]
         public uint Width { get; set; }
         /// <summary>
         /// Resolution height in pixels.
         /// </summary>
+        [DataMember]
         public uint Height { get; set; }
         /// <summary>
         /// Resolution's frame rate (FPS).
         /// </summary>
+        [DataMember]
         public double FrameRate { get; set; }
         /// <summary>
         /// The native recieved format (such as NV12 or BGRA8).
         /// <br/>(Referred to as Subtype in the media capture library).
         /// </summary>
+        [DataMember]
         public string Subtype { get; set; }
 
 
