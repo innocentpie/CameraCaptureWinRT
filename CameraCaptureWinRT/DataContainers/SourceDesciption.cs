@@ -32,7 +32,7 @@ namespace CameraCaptureWinRT
         /// <param name="groupId"></param>
         /// <param name="sourceId"></param>
         /// <returns></returns>
-        public async Task<SourceDescription> FromIdsAsync(string groupId, string sourceId)
+        public static async Task<SourceDescription> FromIdsAsync(string groupId, string sourceId)
         {
             var group = await MediaFrameSourceGroup.FromIdAsync(groupId);
             var source = group?.SourceInfos.First(x => x.Id == sourceId);
