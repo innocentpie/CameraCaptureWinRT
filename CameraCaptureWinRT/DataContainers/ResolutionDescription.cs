@@ -10,6 +10,8 @@ namespace CameraCaptureWinRT
     [DataContract]
     public class ResolutionDescription
     {
+        public ResolutionDescription() { }
+
         public ResolutionDescription(MediaCaptureVideoProfileMediaDescription description)
         {
             Width = description.Width;
