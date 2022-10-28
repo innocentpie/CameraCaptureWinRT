@@ -151,6 +151,11 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="link.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--When the library is used in unity with managed code stripping enabled, include this file somewhere in the assets folder (or a subfolder) so the unused code inside this library won't be removed (important when using something like newtonsoft, since it's serialization works with reflection)-->
+<!--See https://docs.unity3d.com/Manual/ManagedCodeStripping.html for more information-->
+<linker>
+  <assembly fullname="CameraCaptureWinRT" preserve="all"/>
+</linker>
