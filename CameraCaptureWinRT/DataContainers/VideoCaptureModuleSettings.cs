@@ -15,17 +15,26 @@ namespace CameraCaptureWinRT
     {
         /// <summary>
         /// Create settings
-        /// <br/> You must specify a valid source. If the source is null, or not available, initializing the video capture module fails
         /// </summary>
-        /// <param name="targetSource"></param>
+        /// <param name="targetSource">
+        /// The source to capture on
+        /// <br/> If source is not found or null, the default source is used 
+        /// <br/> - If no default source is available, the initialization fails
+        /// </param>
         public VideoCaptureModuleSettings(SourceDescription targetSource)
         {
             TargetSource = targetSource;
         }
 
         /// <summary>
+        /// Create settings
+        /// </summary>
+        public VideoCaptureModuleSettings() { }
+
+        /// <summary>
         /// The source to capture on.
-        /// <br/> If source is not found, initialization fails.
+        /// <br/> If source is not found or null, the default source is used 
+        /// <br/> - If no default source is available, the initialization fails
         /// </summary>
         public SourceDescription TargetSource { get; set; }
 
@@ -38,7 +47,7 @@ namespace CameraCaptureWinRT
 
         /// <summary>
         /// Target resolution of the capture.
-        /// <br/> If the resolution is not available, capture falls back to the source's default configuration.
+        /// <br/> If the resolution is not available or null, capture falls back to the source's default configuration.
         /// </summary>
         public ResolutionDescription TargetResolution { get; set; } = null;
 

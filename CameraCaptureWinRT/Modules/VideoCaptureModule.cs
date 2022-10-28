@@ -117,6 +117,27 @@ namespace CameraCaptureWinRT.Modules
         }
 
         /// <summary>
+        /// Gets the default source that is suitable for capturing with the specified source kind
+        /// </summary>
+        /// <param name="sourceKind"></param>
+        /// <returns>The source, or null if none found</returns>
+        public static async Task<SourceDescription> GetDefaultSource(MediaFrameSourceKind sourceKind)
+        {
+            var allGroups = await MediaFrameSourceGroup.FindAllAsync();
+            var selectedGroup = allGroups.Select(x =>
+            new
+            {
+                group = x,
+                sources = x.SourceInfos.Where(y => y.MediaStreamType == STREAM_TYPE && y.SourceKind == sourceKind)
+            }).FirstOrDefault(x => x.sources.Count() > 0);
+
+            if (selectedGroup == null)
+                return null;
+
+            return new SourceDescription(selectedGroup.group, selectedGroup.sources.First());
+        }
+
+        /// <summary>
         /// Creates empty VideoCaptureModule.
         /// <br/> Call InitializeSettingsAsync to initialize for capturing.
         /// </summary>
@@ -131,13 +152,14 @@ namespace CameraCaptureWinRT.Modules
         {
             await UninitializeSettingsAsync();
 
-            this._moduleSettings = settings;
-            var source = settings.TargetSource;
+            var source = settings.TargetSource ?? await GetDefaultSource(settings.SourceKind);
+            if (source == null)
+                throw new NullReferenceException("Source given for VideoCaptureModule settings is null and no available source found to fall back to default");
 
-            // Find source group and source info
             SourceGroup = source.SourceGroup;
             SourceInfo = source.SourceInfo;
 
+            this._moduleSettings = settings;
 
             MediaCaptureInitializationSettings mediaCaptureInitSettings = new MediaCaptureInitializationSettings()
             {
@@ -182,7 +204,7 @@ namespace CameraCaptureWinRT.Modules
                 throw e;
             }
 
-            if (_moduleSettings.SharingMode != MediaCaptureSharingMode.SharedReadOnly)
+            if (_moduleSettings.SharingMode != MediaCaptureSharingMode.SharedReadOnly && resolution != null)
             {
                 // Initializing succeded
                 // Try to set properties this way as well
