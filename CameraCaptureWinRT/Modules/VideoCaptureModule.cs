@@ -7,15 +7,16 @@ using Windows.Media.Capture;
 using Windows.Media.Capture.Frames;
 using Windows.Graphics.Imaging;
 using System.Threading;
+using Windows.Perception.Spatial;
+using System.Runtime.InteropServices.WindowsRuntime;
 
-namespace CameraCaptureWinRT.Modules
+namespace CameraCaptureWinRT
 {
     /// <summary>
     /// Provides simplified control over video capturing and recieving frames.
     /// </summary>
     public class VideoCaptureModule
     {
-        private const int REALTIME_MODE_CHANNEL_LIMIT = 60;
         private const MediaStreamType STREAM_TYPE = MediaStreamType.VideoRecord;
 
         /// <summary>
@@ -302,12 +303,12 @@ namespace CameraCaptureWinRT.Modules
         private void FrameReader_FrameArrived(MediaFrameReader sender, MediaFrameArrivedEventArgs args)
         {
             FrameData frameData = null;
-            using (var mediaReference = sender.TryAcquireLatestFrame())
+            using (MediaFrameReference mediaReference = sender.TryAcquireLatestFrame())
             {
                 // Did not fail
                 if (mediaReference != null)
                 {
-                    frameData = FrameConvert(mediaReference.VideoMediaFrame);
+                    frameData = MakeFrameData(mediaReference);
                     OnFrameArrived?.Invoke(frameData);
                 }
             }
@@ -317,10 +318,11 @@ namespace CameraCaptureWinRT.Modules
         /// <summary>
         /// Converts <see cref="VideoMediaFrame"/> to <see cref="FrameData"/>
         /// </summary>
-        private unsafe FrameData FrameConvert(VideoMediaFrame frame)
+        private unsafe FrameData MakeFrameData(MediaFrameReference frameReference)
         {
             byte[] result;
-            SoftwareBitmap bitmap = frame.SoftwareBitmap;
+            VideoMediaFrame videoFrameReference = frameReference.VideoMediaFrame;
+            SoftwareBitmap bitmap = videoFrameReference.SoftwareBitmap;
 
             SoftwareBitmap converted = null;
             if (bitmap.BitmapPixelFormat != TargetFormat)
@@ -354,9 +356,10 @@ namespace CameraCaptureWinRT.Modules
                         result[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 3] = dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 3];
                     }
                 }
-
                 frameData = new FrameData()
                 {
+                    cameraIntrinsics = videoFrameReference.CameraIntrinsics,
+                    cameraSpatialCoordinateSystem = frameReference.CoordinateSystem,
                     bytes = result,
                     width = bufferLayout.Width,
                     height = bufferLayout.Height,
