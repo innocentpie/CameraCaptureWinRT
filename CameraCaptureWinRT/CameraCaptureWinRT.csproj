@@ -136,7 +136,7 @@
     <Compile Include="DataContainers\ResolutionDescription.cs" />
     <Compile Include="DataContainers\SourceDesciption.cs" />
     <Compile Include="DataContainers\VideoCaptureModuleSettings.cs" />
-    <Compile Include="Helpers\GuidHelper.cs" />
+    <Compile Include="Helpers\MFGuidHelper.cs" />
     <Compile Include="Modules\VideoCaptureModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IMemoryBufferByteAccess.cs" />

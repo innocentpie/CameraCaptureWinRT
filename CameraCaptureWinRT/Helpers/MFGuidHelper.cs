@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CameraCaptureWinRT.Helpers
 {
-    public static class GuidHelper
+    public static class MFGuidHelper
     {
         // Win32 -> mfapi.h
         // Windows Kits\10\Include\10.0.16299.0\um\mfidl.h

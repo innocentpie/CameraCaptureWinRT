@@ -9,6 +9,7 @@ using Windows.Graphics.Imaging;
 using System.Threading;
 using Windows.Perception.Spatial;
 using System.Runtime.InteropServices.WindowsRuntime;
+using CameraCaptureWinRT.Helpers;
 
 namespace CameraCaptureWinRT
 {
@@ -356,10 +357,14 @@ namespace CameraCaptureWinRT
                         result[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 3] = dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 3];
                     }
                 }
+                
+                var properties = frameReference.Properties;
                 frameData = new FrameData()
                 {
-                    cameraIntrinsics = videoFrameReference.CameraIntrinsics,
-                    cameraSpatialCoordinateSystem = frameReference.CoordinateSystem,
+                    cameraSpatialCoordSystemObj = properties[MFGuidHelper.MFSampleExtension_Spatial_CameraCoordinateSystem],
+                    projectionTransformBytes = properties[MFGuidHelper.MFSampleExtension_Spatial_CameraProjectionTransform],
+                    viewTransformBytes = properties[MFGuidHelper.MFSampleExtension_Spatial_CameraViewTransform],
+
                     bytes = result,
                     width = bufferLayout.Width,
                     height = bufferLayout.Height,

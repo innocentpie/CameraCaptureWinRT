@@ -17,7 +17,7 @@ namespace CameraCaptureWinRT
         /// </summary>
         /// <param name="targetSource">
         /// The source to capture on
-        /// <br/> If source is not found or null, the default source is used 
+        /// <br/> If source is not found or null, the default source is used
         /// <br/> - If no default source is available, the initialization fails
         /// </param>
         public VideoCaptureModuleSettings(SourceDescription targetSource)
